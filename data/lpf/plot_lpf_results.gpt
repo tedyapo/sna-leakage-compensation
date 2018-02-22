@@ -1,0 +1,34 @@
+# plot LPF measurements only using DSA815-TG
+reset
+set terminal pdf color enhanced size 3.6,3.6
+set output 'lpf_results.pdf'
+#set tics textcolor rgb "#ffffff"
+#set border lc rgb "#ffffff"
+# cyan, magenta, and yellow for the first three line styles
+set style line 1 lw 2 lc rgb "#000000"
+#set style line 2 lw 2 lc rgb "#ff00ff"
+#set style line 3 lw 2 lc rgb "#ffff00"
+#set style line 4 lw 4 lc rgb "#00ffff"
+#set style line 5 lw 4 lc rgb "#ff00ff"
+#set style line 6 lw 4 lc rgb "#ffff00"
+set mxtics
+set mytics
+set my2tics
+set grid
+set xtics
+set ytics nomirror
+#set ytics
+#set y2tics
+set key top right opaque
+#set title textcolor rgb "#ffffff"
+set xlabel "Frequency (MHz)" font ',15'
+set ylabel "|S_{21}| (dB)" font ',15'
+set title "LPF Measurement results" font ',20'
+set yrange [-120:0]
+interval = 50
+size = 0.75
+plo '< paste through_raw.dat smt_lpf_raw.dat' using ($1/1e6):($4-$2) with linespoints pi interval ps size  title 'Direct',\
+    'smt_lpf_twocal.dat' using ($1/1e6):2 with linespoints pi interval ps size  title 'Corrected',\
+    '< paste through_raw.dat smt_lpf_preamp_raw.dat' using ($1/1e6):($4-$2) with linespoints pi interval ps size  title 'Direct Preamp',\
+    'smt_lpf_preamp_twocal.dat' using ($1/1e6):2 with linespoints pi interval ps size  title 'Corrected Preamp',\
+     

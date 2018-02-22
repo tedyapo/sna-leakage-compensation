@@ -1,0 +1,31 @@
+# plot error bounds for TG leakage
+#
+# run with:
+# gnuplot error_sim.gpt
+#
+reset
+set terminal pdf color enhanced size 3.6,3.6
+set output 'error_sim.pdf'
+
+leakage_dBm = -40
+
+leakage_Vpk = sqrt((10**(leakage_dBm/10))/10)
+signal_Vpk(x) = sqrt((10**(x/10))/10)
+maxi_Vpk(x) = leakage_Vpk + signal_Vpk(x)
+mini_Vpk(x) = abs(leakage_Vpk - signal_Vpk(x))
+maxi_dBm(x) =  10.*log10(1000. * (maxi_Vpk(x)/sqrt(2.))**2 / 50.)
+mini_dBm(x) =  10.*log10(1000. * (mini_Vpk(x)/sqrt(2.))**2 / 50.)
+
+set xrange [-100:0]
+set yrange [-100:0]
+set size ratio -1
+set samples 10000
+set key top left font ',12'
+set title 'Direct Measurement Error Bounds' font ',20'
+set xlabel 'True Signal Level (dBm)' font ',15'
+set ylabel 'Reported Signal Level (dBm)' font ',15'
+plot '+' using 1:(mini_dBm($1)):(maxi_dBm($1)) with filledcurves lc rgb 0xaaaaaa title 'Error Envelope',\
+     x with linespoints pt 4 ps 0.75 lw 1 lc black pi 1000 title 'Signal',\
+     leakage_dBm with linespoints pt 8 ps 1 lw 1 lc black pi 1000 title 'Leakage',\
+     maxi_dBm(x) lc black notitle,\
+     mini_dBm(x) lc black notitle

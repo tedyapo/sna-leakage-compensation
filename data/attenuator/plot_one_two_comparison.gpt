@@ -1,0 +1,43 @@
+reset
+set terminal pdf color enhanced size 3.6,3.6
+set output 'calibration_comparison.pdf' 
+set multiplot layout 5, 1 title "HP355D Corrected Measurement" font ',15'
+set style line 1 lw 4
+set style line 2 lw 4
+set ytics
+set grid
+set mxtics
+
+set tmargin 1
+set bmargin 0
+
+set format x ''
+set yrange [-42:-38]
+set ytics (-42, - 40, -38)
+unset key
+plot '40db_onecal.dat' u ($1/1e6):2 w l title 'One Thru',\
+     '40db_twocal.dat' u ($1/1e6):2 w l title 'Two Thru'
+
+set yrange [-52:-48]
+set ytics (-52, - 50, -48)
+unset key
+plot '50db_onecal.dat' u ($1/1e6):2 w l title 'One Thru',\
+     '50db_twocal.dat' u ($1/1e6):2 w l title 'Two Thru'
+
+set yrange [-62:-58]
+set ytics (-62, - 60, -58)
+unset key
+plot '60db_onecal.dat' u ($1/1e6):2 w l title 'One Thru',\
+     '60db_twocal.dat' u ($1/1e6):2 w l title 'Two Thru'
+
+set key bottom left opaque font ',8'
+set style textbox opaque noborder 
+unset format x
+#set ylabel "|S_{21}| (dB)" font ',10'
+set xlabel "Frequency (MHz)" font ',10'
+set yrange [-72:-68]
+set ytics (-72, - 70, -68)
+plot '70db_onecal.dat' u ($1/1e6):2 w l title 'One Through',\
+     '70db_twocal.dat' u ($1/1e6):2 w l title 'Two Through'
+
+unset multiplot

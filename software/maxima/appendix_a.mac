@@ -1,0 +1,106 @@
+
+/*
+Signal Definitions
+*/
+
+kill(all);
+
+/*
+Assume signal amplitudes are positive: aids solutions below.
+*/
+
+declare(a, real);
+assume(a[l] > 0);
+assume(a[A] > 0);
+assume(a[B] > 0);
+
+/*
+Internal signal from tracking generator source.
+*/
+
+V[g] : exp(%i * \omega * t);
+
+/*
+Leakage from TG.
+*/
+
+V[l]: a[l] * V[g];
+
+/*
+Measurement signals through "A" and "B" external paths.
+*/
+
+V[As]: + a[0] * a[A] * V[g] * exp(%i * (\theta + \delta));
+V[Bs]: - a[0] * a[B] * V[g] * exp(%i * (\theta - \delta));
+
+/*
+Signals corrupted by TG leakage.
+*/
+
+V[A]: V[As] + V[l];
+V[B]: V[Bs] + V[l];
+
+/*
+Detected signals: leakage from TG and through two external paths.
+*/
+
+G[l]: cabs(V[l]);
+G[A]: trigreduce(trigsimp(trigexpand(cabs(V[A]))));
+G[B]: trigreduce(trigsimp(trigexpand(cabs(V[B]))));
+
+/*
+Calibrations
+*/
+
+/*
+Internal leakage calibration.
+*/
+
+leakage_cal: solve(M[l] = G[l], a[l]);
+
+/*
+Through calibration of "A" and "B" external paths.
+*/
+
+through_cal: solve(ev([M[At] = G[A], M[Bt] = G[B]], [a[0] = 1, a[l] = 0]), [a[A], a[B]]);
+
+/*
+Solutions
+*/
+
+/*
+One Through Calibration
+*/
+
+/*
+Measures leakage and one external path, assumes \delta = 0 and external paths have equal loss.
+*/
+
+one_cal: flatten([leakage_cal, \delta = 0, ev(through_cal, M[Bt] = M[At])]);
+
+one_soln: fullratsimp(solve(ev([M[A]^2 = G[A]^2, M[B]^2 = G[B]^2], one_cal), [a[0], cos(\theta)]));
+
+/*
+Resulting solutions are simply negatives of each other.
+*/
+
+is(equal(at(a[0], first(one_soln)), at(-a[0], second(one_soln))));
+
+/*
+Two Through Calibrations
+*/
+
+/*
+Measures leakage and both external paths, assumes \delta = 0.
+*/
+
+two_cal: flatten([leakage_cal, \delta = 0, through_cal]);
+
+two_soln: fullratsimp(ev(solve([M[A]^2 = G[A]^2, M[B]^2 = G[B]^2], [a[0], cos(\theta)]), two_cal));
+
+/*
+Again, solutions are just of opposite sign.
+*/
+
+is(equal(at(a[0], first(two_soln)), at(-a[0], second(two_soln))));
+
